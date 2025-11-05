@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop Journal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☕ My Coffee Shop Journal</h1>
+            <p class="subtitle">Track and rate all your coffee adventures</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Add/Edit Form -->
+            <section class="form-section" id="formSection">
+                <h2 id="formTitle">Add New Coffee Shop</h2>
+                <form id="coffeeForm">
+                    <input type="hidden" id="editId">
+
+                    <div class="form-group">
+                        <label for="shopName">Coffee Shop Name *</label>
+                        <input type="text" id="shopName" required placeholder="e.g., Blue Bottle Coffee">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visitDate">Visit Date *</label>
+                        <input type="date" id="visitDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rating">Rating *</label>
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                        <input type="hidden" id="rating" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liked">What I Liked</label>
+                        <textarea id="liked" rows="4" placeholder="What did you enjoy about this place?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="disliked">What I Didn't Like</label>
+                        <textarea id="disliked" rows="4" placeholder="Anything that could be better?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Any other thoughts or details?"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Add Entry</button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Entries List -->
+            <section class="entries-section">
+                <div class="entries-header">
+                    <h2>My Coffee Shop Visits (<span id="entryCount">0</span>)</h2>
+                    <div class="sort-options">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy">
+                            <option value="date-desc">Newest First</option>
+                            <option value="date-asc">Oldest First</option>
+                            <option value="rating-desc">Highest Rated</option>
+                            <option value="rating-asc">Lowest Rated</option>
+                            <option value="name-asc">Name (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="entriesList" class="entries-list">
+                    <!-- Entries will be dynamically inserted here -->
+                </div>
+                <div id="emptyState" class="empty-state">
+                    <p>No coffee shops yet! Start by adding your first visit above.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
