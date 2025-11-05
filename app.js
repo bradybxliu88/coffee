@@ -1,9 +1,22 @@
 // Coffee Shop Journal App
+let appInstance = null;
+
+// Google Maps callback function
+function initMap() {
+    if (appInstance) {
+        appInstance.initializeGoogleMaps();
+    }
+}
+
 class CoffeeJournal {
     constructor() {
         this.entries = this.loadEntries();
         this.currentEditId = null;
         this.currentRating = 0;
+        this.autocomplete = null;
+        this.formMap = null;
+        this.formMarker = null;
+        this.selectedLocation = null;
         this.init();
     }
 
@@ -11,6 +24,53 @@ class CoffeeJournal {
         this.setupEventListeners();
         this.renderEntries();
         this.setDefaultDate();
+        // Google Maps will initialize via callback
+    }
+
+    initializeGoogleMaps() {
+        if (typeof google === 'undefined') {
+            console.warn('Google Maps API not loaded');
+            return;
+        }
+
+        // Initialize autocomplete
+        const locationInput = document.getElementById('location');
+        this.autocomplete = new google.maps.places.Autocomplete(locationInput, {
+            types: ['establishment', 'geocode']
+        });
+
+        this.autocomplete.addListener('place_changed', () => {
+            const place = this.autocomplete.getPlace();
+            if (place.geometry) {
+                this.selectedLocation = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                    address: place.formatted_address || place.name
+                };
+                this.showFormMap();
+            }
+        });
+    }
+
+    showFormMap() {
+        if (!this.selectedLocation || typeof google === 'undefined') return;
+
+        const formMapDiv = document.getElementById('formMap');
+        formMapDiv.style.display = 'block';
+
+        if (!this.formMap) {
+            this.formMap = new google.maps.Map(formMapDiv, {
+                center: this.selectedLocation,
+                zoom: 15
+            });
+            this.formMarker = new google.maps.Marker({
+                map: this.formMap,
+                position: this.selectedLocation
+            });
+        } else {
+            this.formMap.setCenter(this.selectedLocation);
+            this.formMarker.setPosition(this.selectedLocation);
+        }
     }
 
     setupEventListeners() {
@@ -78,6 +138,7 @@ class CoffeeJournal {
             liked: document.getElementById('liked').value.trim(),
             disliked: document.getElementById('disliked').value.trim(),
             notes: document.getElementById('notes').value.trim(),
+            location: this.selectedLocation,
             createdAt: this.currentEditId ?
                 this.entries.find(e => e.id === this.currentEditId).createdAt :
                 new Date().toISOString()
@@ -114,6 +175,13 @@ class CoffeeJournal {
         document.getElementById('notes').value = entry.notes;
         this.setRating(entry.rating);
 
+        // Set location if available
+        if (entry.location) {
+            this.selectedLocation = entry.location;
+            document.getElementById('location').value = entry.location.address;
+            this.showFormMap();
+        }
+
         document.getElementById('formTitle').textContent = 'Edit Coffee Shop';
         document.getElementById('submitBtn').textContent = 'Update Entry';
         document.getElementById('cancelBtn').style.display = 'inline-block';
@@ -134,10 +202,12 @@ class CoffeeJournal {
         document.getElementById('coffeeForm').reset();
         this.currentEditId = null;
         this.currentRating = 0;
+        this.selectedLocation = null;
         this.highlightStars(0);
         document.getElementById('formTitle').textContent = 'Add New Coffee Shop';
         document.getElementById('submitBtn').textContent = 'Add Entry';
         document.getElementById('cancelBtn').style.display = 'none';
+        document.getElementById('formMap').style.display = 'none';
         this.setDefaultDate();
     }
 
@@ -191,6 +261,29 @@ class CoffeeJournal {
                 this.deleteEntry(btn.dataset.id);
             });
         });
+
+        // Initialize maps for entries with location
+        this.initializeEntryMaps();
+    }
+
+    initializeEntryMaps() {
+        if (typeof google === 'undefined') return;
+
+        this.entries.forEach(entry => {
+            if (entry.location) {
+                const mapDiv = document.getElementById(`entry-map-${entry.id}`);
+                if (mapDiv) {
+                    const map = new google.maps.Map(mapDiv, {
+                        center: entry.location,
+                        zoom: 15
+                    });
+                    new google.maps.Marker({
+                        map: map,
+                        position: entry.location
+                    });
+                }
+            }
+        });
     }
 
     sortEntries(entries, sortBy) {
@@ -229,6 +322,9 @@ class CoffeeJournal {
                             <span class="entry-rating">${stars}</span>
                             <span>${formattedDate}</span>
                         </div>
+                        ${entry.location ? `
+                            <div class="location-info">${this.escapeHtml(entry.location.address)}</div>
+                        ` : ''}
                     </div>
                     <div class="entry-actions">
                         <button class="btn btn-small btn-edit" data-id="${entry.id}">Edit</button>
@@ -236,6 +332,12 @@ class CoffeeJournal {
                     </div>
                 </div>
                 <div class="entry-details">
+                    ${entry.location ? `
+                        <div class="detail-section">
+                            <h4>📍 Location</h4>
+                            <div id="entry-map-${entry.id}" class="entry-map"></div>
+                        </div>
+                    ` : ''}
                     ${entry.liked ? `
                         <div class="detail-section">
                             <h4>👍 What I Liked</h4>
@@ -288,5 +390,5 @@ class CoffeeJournal {
 
 // Initialize the app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new CoffeeJournal();
+    appInstance = new CoffeeJournal();
 });

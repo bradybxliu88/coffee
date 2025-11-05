@@ -6,6 +6,7 @@ A simple, elegant web app to track and rate all the coffee shops you visit. Keep
 
 - **Rate Coffee Shops**: 1-5 star rating system
 - **Track Visits**: Record the date of each visit
+- **Location Mapping**: Add shop locations with Google Maps integration (optional)
 - **Journal Entries**: Note what you liked and didn't like about each shop
 - **Additional Notes**: Add any extra thoughts or details
 - **Sort & Filter**: Sort by date, rating, or name
@@ -17,6 +18,7 @@ A simple, elegant web app to track and rate all the coffee shops you visit. Keep
 1. **Open the app**: Simply open `index.html` in your web browser
 2. **Add a coffee shop**:
    - Fill in the shop name
+   - (Optional) Search for the location - autocomplete will suggest addresses
    - Select the visit date
    - Click on the stars to rate (1-5)
    - Write what you liked and didn't like
@@ -40,6 +42,17 @@ start index.html
 ```
 
 No installation or server needed!
+
+## Google Maps Setup (Optional)
+
+To enable location features with interactive maps:
+
+1. Get a free Google Maps API key (see [GOOGLE_MAPS_SETUP.md](GOOGLE_MAPS_SETUP.md) for detailed instructions)
+2. Open `index.html`
+3. Replace `YOUR_API_KEY_HERE` with your actual API key on line 8
+4. Save and reload the app
+
+**Without an API key:** The app works perfectly fine! Location features are optional - you can still track all your coffee shops without maps.
 
 ## Data Storage
 
